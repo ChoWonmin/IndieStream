@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="imageMapper">
+
+	<resultMap type="image" id="imageListRM">
+		<result property="snsImageNo" column="sns_image_no"/>
+		<result property="snsBoardNo" column="sns_board_no"/>
+		<result property="snsWriter" column="sns_writer"/>
+		<result property="snsImageUrl" column="sns_image_url"/>
+	</resultMap>
+
+	<insert id="imageInsert" parameterType="image">
+		<selectKey keyProperty="snsImageNo" resultType="int" order="BEFORE">
+			select image_seq.nextVal from dual	
+		</selectKey>
+	INSERT INTO image(sns_image_no,sns_board_no,sns_writer,sns_image_url)
+	VALUES(#{snsImageNo}, #{snsBoardNo}, #{snsWriter},#{snsImageUrl})
+	
+	</insert>
+	
+<!-- 	<select id="imageSelectFirstFromAllPost" resultMap="imageListRM">
+	 	SELECT sns_image_no,sns_board_no,sns_writer,sns_image_url 
+	 	FROM image
+	</select> -->
+	
+	<select id="imageSelectAll" resultMap="imageListRM" parameterType="string">
+	 	SELECT sns_image_no,sns_board_no,sns_writer,sns_image_url 
+	 	FROM image
+	 	WHERE sns_board_no =#{value}
+	</select>
+	
+	
+	<update id="imageUpdate" parameterType="image">
+		UPDATE image SET sns_image_url=#{snsImageUrl}
+		WHERE sns_board_no =#{snsBoardNo}
+	</update>
+	
+	<delete id="imageDeleteAll" parameterType="image">
+		DELETE FROM image 
+		WHERE sns_board_no =#{snsBoardNo}
+	</delete>
+	
+	<delete id="imageDeleteOne" parameterType="image">
+		DELETE FROM image 
+		WHERE sns_board_no =#{snsBoardNo}
+		AND sns_image_no=#{snsImageNo}
+	</delete>
+</mapper>	
+
+
+

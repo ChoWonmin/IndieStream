@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reportMapper">
+<!-- 댓글 기능 빼고 구현 중 -->
+	<resultMap type="report" id="reportSnsListRM">
+		<result property="reportNo" column="report_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="reporterComment" column="reporter_comment"/>
+		<result property="reportTime" column="report_time"/>
+		<result property="snsBoardNo" column="sns_board_no"/>
+		<result property="snsWriter" column="sns_writer"/>
+	</resultMap>
+	<resultMap type="report" id="reportSoundListRM">
+		<result property="reportNo" column="report_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="reporterComment" column="reporter_comment"/>
+		<result property="reportTime" column="report_time"/>
+		<result property="soundBoardNo" column="sound_board_no"/>
+		<result property="soundWriter" column="sound_writer"/>
+	</resultMap>
+	<resultMap type="report" id="reportReplyListRM">
+		<result property="reportNo" column="report_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="reporterComment" column="reporter_comment"/>
+		<result property="reportTime" column="report_time"/>
+		<result property="replyNo" column="reply_no"/>
+		<result property="replyWriter" column="reply_writer"/>
+		<result property="snsWriter" column="sns_writer"/>
+		<result property="soundWriter" column="sound_writer"/>
+		
+	</resultMap>
+	
+	<resultMap type="report" id="reportMemberListRM">
+		<result property="reportNo" column="report_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="reporterComment" column="reporter_comment"/>
+		<result property="reportTime" column="report_time"/>
+	</resultMap>
+		
+	<resultMap type="report" id="reportSnsMinListRM">
+		<result property="snsBoardNo" column="sns_board_no"/>
+		<result property="reported" column="reported"/>
+	</resultMap>
+		<resultMap type="report" id="reportSoundMinListRM">
+		<result property="soundBoardNo" column="sound_board_no"/>
+		<result property="reported" column="reported"/>
+	</resultMap>
+		<resultMap type="report" id="reportReplyMinListRM">
+		<result property="replyNo" column="reply_no"/>
+		<result property="reported" column="reported"/>
+	</resultMap>
+
+	
+	<!-- select 부분은 매니저에게 줘야할 부분이고 insert 부분은 모든 멤버에게 줘야할 권한이다. -->
+	<insert id="reportSnsInsert" parameterType="report">
+		<selectKey keyProperty="reportNo" resultType="int" order="BEFORE">
+			select report_seq.nextVal from dual	
+		</selectKey>
+		insert into 
+			report(report_no, member_id, reporter_comment, report_time, sns_board_no, sns_writer)
+		values(#{reportNo}, #{memberId}, #{reporterComment}, sysdate, #{snsBoardNo}, #{snsWriter})
+	</insert>
+	<insert id="reportSoundInsert" parameterType="report">
+		<selectKey keyProperty="reportNo" resultType="int" order="BEFORE">
+			select report_seq.nextVal from dual	
+		</selectKey>
+		insert into 
+			report(report_no, member_id, reporter_comment, report_time, sound_board_no, sound_writer)
+		values(#{reportNo}, #{memberId}, #{reporterComment}, sysdate, #{soundBoardNo}, #{soundWriter})
+	</insert>
+	<insert id="reportReplyInsert" parameterType="report">
+		<selectKey keyProperty="reportNo" resultType="int" order="BEFORE">
+			select report_seq.nextVal from dual	
+		</selectKey>
+		insert into 
+			report(report_no, member_id, reporter_comment, report_time, reply_no, reply_writer)
+		values(#{reportNo}, #{memberId}, #{reporterComment}, sysdate, #{replyNo}, #{replyWriter})
+	</insert>
+	
+	
+	<select id="reportCurrentNo" resultType="int">
+		select report_seq.currVal FROM dual 
+	</select>
+	
+		
+	
+		<!-- select report_no, member_id, reporter_comment, report_time, sns_board_no, sns_writer, count(-1) as reported
+		from report
+		where sound_writer is null and reply_writer is null
+		GROUP BY sns_board_no
+		order by sns_board_no desc -->
+	<!-- 매니저가 받을 입장 -->
+	
+	<select id="reportSnsSelect" resultMap="reportSnsMinListRM">
+		select sns_board_no, count(-1) as reported
+		from (select distinct member_id, sns_board_no from report
+		where sound_writer is null and reply_writer is null)
+		GROUP BY sns_board_no
+		order by sns_board_no desc
+	</select>
+	<select id="reportSoundSelect" resultMap="reportSoundMinListRM">
+		select sound_board_no, count(-1) as reported
+		from (select distinct member_id, sound_board_no from report
+		where sns_writer is null and reply_writer is null)
+		GROUP BY sound_board_no
+		order by sound_board_no desc
+	</select>
+	<select id="reportReplySelect" resultMap="reportReplyMinListRM">
+      select reply_no, count(-1) as reported
+      from (select distinct member_id, reply_no from report
+      where sound_writer is null and sns_writer is null)
+      GROUP BY reply_no
+      order by reply_no desc
+   </select>
+	
+	<!-- <select id="reportSnsReplySelect" resultMap="reportReplyMinListRM">
+		select reply_no, count(-1) as reported
+		from (select distinct member_id, reply_no from report
+		where sound_writer is null and sound_board_no is null and reply_writer is not null)
+		GROUP BY reply_no
+		order by reply_no desc
+	</select>
+	<select id="reportSoundReplySelect" resultMap="reportReplyMinListRM">
+		select reply_no, count(-1) as reported
+		from (select distinct member_id, reply_no from report
+		where sns_writer is null and sns_board_no is null and reply_writer is not null)
+		GROUP BY reply_no
+		order by reply_no desc
+	</select> -->
+	<!-- 각 항목 클릭해 세부 신고사항 보기// 위에 신고 횟수 보여주고 -->
+	<select id="reportSnsOneDetailSelect" parameterType="string" resultMap="reportSnsListRM">
+		select report_no, member_id, reporter_comment, report_time, sns_board_no, sns_writer
+		from report
+		where sns_board_no=#{value}
+	</select>
+	<select id="reportSoundOneDetailSelect" parameterType="string" resultMap="reportSoundListRM">
+		select report_no, member_id, reporter_comment, report_time, sound_board_no, sns_writer
+		from report
+		where sound_board_no=#{value}
+	</select>
+	<select id="reportReplyDetailSelect" parameterType="string" resultMap="reportReplyListRM">
+		select report_no, member_id, reporter_comment, report_time, reply_no, reply_writer, sns_writer, sound_writer
+		from report
+		where reply_no=#{value}
+	</select>
+	
+	<update id="reportSnsCount" parameterType="string">
+		UPDATE report
+		SET report_count=report_count+1
+		WHERE sns_writer=#{value}
+	</update>
+	<update id="reportSoundCount" parameterType="string">
+		UPDATE report
+		SET report_count=report_count+1
+		WHERE sound_writer=#{value}
+	</update>
+	<update id="reportReplyCount" parameterType="string">
+		UPDATE report
+		SET report_count=report_count+1
+		WHERE reply_writer=#{value}
+	</update>
+	
+</mapper>	
+		
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="musicListMapper">
+
+	<resultMap type="musicList" id="musicListMap">
+		<result property="musicListNo" column="music_list_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="listName" column="list_name"/>
+	</resultMap>
+	
+	<sql id="musicList-collumn">
+		music_list_no, member_id, list_name
+	</sql>
+	<sql id="where-no-id">
+		WHERE music_list_no=#{musicListNo} AND member_id=#{memberId}
+	</sql>
+	
+	<insert id="insertMusicList" parameterType="musicList">
+		<selectKey keyProperty="musicListNo" resultType="int" order="BEFORE">
+			SELECT 
+			music_list_seq.nextVal 
+			FROM dual
+		</selectKey>
+		INSERT INTO music_List(<include refid="musicList-collumn"/>)
+		VALUES(#{musicListNo}, #{memberId}, #{listName})
+	</insert>
+	
+	<delete id="deleteMusicList" parameterType="musicList">
+		DELETE FROM music_list
+		WHERE music_list_no=#{musicListNo} AND member_id=#{memberId}
+	</delete>
+	
+	<update id="updateListName" parameterType="musicList">
+		UPDATE music_list
+		SET list_name=#{listName}
+		WHERE music_list_no=#{musicListNo} AND member_id=#{memberId}
+	</update>
+	
+	<select id="selectMusicListById" resultMap="musicListMap">
+		SELECT
+		<include refid="musicList-collumn"/>
+		FROM music_list
+		WHERE member_id=#{memberId}
+	</select>
+	
+</mapper>
+

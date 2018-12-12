@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hashMapper">
+	
+	<resultMap type="hash" id="hashSnsListRM">
+		<result property="snsBoardNo" column="sns_board_no"/>	
+		<result property="snsWriter" column="sns_writer"/>
+		<result property="keyword" column="keyword"/>
+	</resultMap>
+	
+	<resultMap type="hash" id="hashSoundListRM">
+		<result property="soundBoardNo" column="sound_board_no"/>
+		<result property="soundWriter" column="sound_writer"/>
+		<result property="keyword" column="keyword"/>
+	</resultMap>
+
+<!-- 	<insert id="hashSnsInsert" parameterType="hash" >
+	
+		<foreach collection="keyword" item="item" index="index" open="insert all " separator=" " close="select * from dual">
+		INTO hashtag(sns_board_no, sns_writer, keyword)
+		VALUES
+			(#{snsBoardNo}, #{snsWriter}, #{item})
+		</foreach>
+	</insert> -->
+	<!-- <insert id="hashSoundInsert" parameterType="hash">
+	<foreach collection="keyword" item="item" index="index" open="insert all " separator=" " close="select * from dual">
+		INTO hashtag(sound_board_no, sound_writer, keyword)
+		VALUES
+			(#{soundBoardNo}, #{soundWriter}, #{item})
+		</foreach>
+	</insert> -->
+	
+	<insert id="hashSnsInsert" parameterType="hash" >
+		insert INTO hashtag(sns_board_no, sns_writer, keyword)
+		VALUES(#{snsBoardNo}, #{snsWriter}, #{keyword})
+	</insert>
+	<insert id="hashSoundInsert" parameterType="hash" >
+		insert INTO hashtag(sound_board_no, sound_writer, keyword)
+		VALUES(#{soundBoardNo}, #{soundWriter}, #{keyword})
+	</insert>
+	
+	
+	
+	
+	<!-- 게시판 전체의 해시태그 불러오기 -->
+	<!-- <select id="hashSnsSelectFromAllPost" resultMap="">
+	 SELECT sns_board_no, sns_writer, keyword 
+	 FROM hashtag
+	</select>
+	
+	<select id="hashSoundSelectAll">
+	 SELECT sound_board_no, sound_writer, keyword 
+	 FROM hashtag
+	</select> -->
+	
+	<!-- 한 게시물의 해시태그 불러오기 -->
+	<select id="hashSnsSelectFromOnePost" parameterType="string" resultMap="hashSnsListRM">
+	 SELECT distinct sns_board_no, sns_writer, keyword 
+	 FROM hashtag
+	 WHERE sns_board_no=#{VALUE}
+	</select>
+	
+	<select id="hashSoundSelectFromOnePost" parameterType="string" resultMap="hashSoundListRM">
+	 SELECT distinct sound_board_no, sound_writer, keyword 
+	 FROM hashtag
+	 WHERE sound_board_no=#{VALUE}
+	</select>
+	
+	<!-- 업데이트 : 불가능할듯 -->
+	
+	<update id="hashSnsUpdate" parameterType="hash">
+	 UPDATE hashtag 
+	 SET keyword=#{keyword}
+	 WHERE sns_board_no =#{snsBoardNo}
+	</update>
+	
+	<update id="hashSoundUpdate" parameterType="hash">
+	 UPDATE hashtag 
+	 SET keyword=#{keyword}
+	 WHERE sound_board_no =#{soundBoardNo}
+	</update>
+
+	<!-- 삭제 -->
+	
+	<delete id="hashSnsDeleteFromOneBoard" parameterType="hash">
+	 DELETE FROM hashtag
+	 WHERE sns_board_no=#{snsBoardNo} and keyword=#{keyword} and sns_writer=#{snsWriter}
+	</delete>
+	
+	<delete id="hashSoundDeleteFromOneBoard" parameterType="hash">
+	 DELETE FROM hashtag
+	 WHERE sound_board_no=#{soundBoardNo} and keyword=#{keyword} and sound_writer=#{soundWriter}
+	</delete>
+	
+	<!-- 삭제 전부  -->
+	<delete id="hashSnsDeleteAllFromOneBoard" parameterType="hash">
+	 DELETE FROM hashtag
+	 WHERE sns_board_no=#{snsBoardNo} and sns_writer=#{snsWriter}
+	</delete>
+	
+	<delete id="hashSoundDeleteAllFromOneBoard" parameterType="hash">
+	 DELETE FROM hashtag
+	 WHERE sound_board_no=#{soundBoardNo} and sound_writer=#{soundWriter}
+	</delete>
+	
+	<!-- 검색기능 -->
+	<select id="hashtagSnsSearchSelect" parameterType="string" resultMap="hashSnsListRM">
+		select sns_board_no, sns_writer, keyword 
+		from hashtag 
+		where sound_writer is null and keyword like '%'||#{value}||'%'
+	</select>
+	<select id="hashtagSoundSearchSelect" parameterType="string" resultMap="hashSoundListRM">
+		select sound_board_no, sound_writer, keyword 
+		from hashtag 
+		where sns_writer is null and keyword like '%'||#{value}||'%'
+	</select>
+	<resultMap type="hash" id="hashCountRM">
+		<result property="keyword" column="keyword"/>
+		<result property="hcount" column="hcount"/>
+	</resultMap>
+	
+	<select id="hashtagCountSelect" resultMap="hashCountRM">
+	<![CDATA[
+    	select keyword, count(-1) as hcount
+		from(select * from hashtag where keyword like '#'||'%')
+		where rownum <=10
+		GROUP BY keyword
+		order by hcount desc
+    ]]>
+	</select>
+</mapper>	
+
+
+

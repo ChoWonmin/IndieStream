@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="snsMapper">
+
+<resultMap type="sns" id="snsListRM">
+   <result property="snsBoardNo" column="sns_board_no"/>
+   <result property="snsWriter" column="sns_writer"/>
+   <result property="postedTime" column="posted_time"/>
+   <result property="snsContent" column="sns_content"/>
+   <result property="videoUrl" column="video_url"/>
+</resultMap>
+
+<resultMap type="sns" id="snsCheckListRM">
+   <result property="snsBoardNo" column="sns_board_no"/>
+   <result property="snsWriter" column="sns_writer"/>
+   <result property="postedTime" column="posted_time"/>
+   <result property="snsContent" column="sns_content"/>
+   <result property="videoUrl" column="video_url"/>
+   <result property="checkDone" column="check_done"/>
+</resultMap>
+
+   <select id="snsSelectAll" resultMap="snsCheckListRM">
+      SELECT sns_board_no, sns_writer,posted_time, sns_content,video_url,check_done
+      FROM sns_board
+   </select>
+   
+   <!-- check_done 부분  -->
+   <delete id="snsDeleteUnchecked">
+      DELETE FROM sns_board WHERE check_done=0
+   </delete>
+
+   <update id="snsUpdateToChecked" parameterType="string">
+      UPDATE sns_board SET check_done=1 WHERE sns_board_no=#{value} 
+   </update>
+
+   <!-- 기존 게시글 기능 -->
+
+   <select id="snsCurrentNo" resultType="int">
+      select sns_board_seq.currVal FROM dual 
+   </select>
+   
+   <select id="snsSelectOne" resultMap="snsListRM" parameterType="string">
+      SELECT sns_board_no, sns_writer, TO_CHAR(posted_time, 'YYYY-MM-DD HH24:MI') AS posted_time, sns_content,video_url 
+      FROM sns_board
+      WHERE sns_board_no=#{value}
+   </select>
+
+   <insert id="snsInsert" parameterType="sns">
+      <selectKey keyProperty="snsBoardNo" resultType="int" order="BEFORE">
+         select sns_board_seq.nextVal from dual   
+      </selectKey>
+      INSERT INTO 
+         sns_board(sns_board_no, sns_writer, posted_time,sns_content,video_url)
+      VALUES(#{snsBoardNo}, #{snsWriter}, sysdate ,#{snsContent}, #{videoUrl})
+   </insert>
+   
+   <update id="snsUpdate" parameterType="sns">
+      UPDATE sns_board SET sns_content=#{snsContent}, video_url=#{videoUrl} 
+      where sns_board_no=#{snsBoardNo}
+   </update>
+   
+   <delete id="snsDelete" parameterType="string">
+      DELETE FROM sns_board WHERE sns_board_no=#{sns_board_no}
+   </delete>
+   
+   
+<!-- 검색기능 -->
+   <select id="snsBoardWriterSearchSelect" resultMap="snsListRM" parameterType="string">
+      select sns_board_no, sns_writer,posted_time, sns_content,video_url
+      from sns_board 
+      where sns_writer like '%'||#{value}||'%'
+   </select>
+   <select id="snsBoardContentSearchSelect" resultMap="snsListRM" parameterType="string">
+      select sns_board_no, sns_writer,posted_time, sns_content,video_url
+      from sns_board 
+      where sns_content like '%'||#{value}||'%'
+   </select>
+   
+<!-- 동영상 url 추가 기능 -->
+   <update id="snsBoardVideoUrlUpdate" parameterType="sns">
+      UPDATE sns_board SET video_url=#{videoUrl}
+      WHERE sns_board_no = #{snsBoardNo}
+   </update>
+   
+   <select id="selectFollowSnsBoard" parameterType="PageModel" resultMap="snsListRM">
+      SELECT sns_board_no, sns_writer, posted_time, sns_content,video_url
+      FROM
+      (
+         SELECT sns_board_no, sns_writer, posted_time, sns_content,video_url, ceil(rownum/#{contetnNumber}) page
+         FROM(
+            SELECT sns_board_no, sns_writer, posted_time, sns_content,video_url
+            FROM sns_board
+            WHERE sns_writer IN (
+               SELECT follow_id
+               FROM follow
+               WHERE followed_id = #{key}
+            ) OR sns_writer= #{key} 
+            ORDER BY posted_time DESC
+         )
+      )
+      WHERE page = #{page}
+   </select>
+   <select id="snsBoardByIdSelect" resultMap="snsListRM" parameterType="string">
+      select sns_board_no, sns_writer, to_char(time_posted,'YYYY.MM.DD') posted_time, sns_content,video_url
+      from sns_board 
+      where sns_writer = #{value}
+   </select>
+   
+   <select id="snsSelectAllFromWriter" parameterType="string" resultMap="snsCheckListRM">
+      SELECT sns_board_no, sns_writer,posted_time, sns_content,video_url,check_done
+      FROM sns_board where sns_writer=#{value}
+   </select>
+   
+</mapper>   
+

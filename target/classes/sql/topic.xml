@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="topicMapper">
+	
+	<insert id="insertTopic" parameterType="String">
+		INSERT INTO topic (topic)
+		VALUES (#{value})
+	</insert>
+	
+	<delete id="deleteTopic" parameterType="String">
+		DELETE topic
+		WHERE topic=#{value}
+	</delete>
+	
+	<select id="selectTopic" parameterType="String" resultType="String">
+		SELECT
+		topic
+		FROM topic
+	</select>
+
+</mapper>	
+
+
+

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="replyMapper">
+
+
+	<!-- snsReply -->
+
+	<resultMap type="reply" id="snsReplyListRM">
+		<result property="replyNo" column="reply_no"/>
+		<result property="replyWriter" column="reply_writer"/>
+		<result property="snsBoardNo" column="sns_board_no"/>
+		<result property="replyComment" column="reply_comment"/>
+		<result property="replyTime" column="reply_time"/>
+		<result property="checking" column="checking"/>
+	</resultMap>
+
+	<insert id="snsInsertReply" parameterType="reply">
+		<selectKey keyProperty="replyNo" resultType="int" order="BEFORE">
+				select reply_seq.nextVal from dual	
+		</selectKey>
+		INSERT INTO reply
+		(reply_no, reply_writer, sns_board_no,
+		 reply_comment, reply_time) 
+		 values(#{replyNo},#{replyWriter},#{snsBoardNo},#{replyComment}, sysdate)
+	</insert>
+
+	<select id="snsGetAllReply" resultMap="snsReplyListRM" parameterType="string">
+		SELECT 
+		reply_no, reply_writer, sns_board_no, reply_comment,TO_CHAR(reply_time, 'YYYY-MM-DD HH24:MI') AS reply_time 
+		FROM reply	
+		WHERE sns_board_no=#{value}
+	</select>
+	
+	<select id="snsGetOneReply" parameterType="string" resultMap="snsReplyListRM">
+		SELECT 
+		reply_no, reply_writer, sns_board_no, reply_comment, TO_CHAR(reply_time, 'YYYY-MM-DD HH24:MI') AS reply_time
+		FROM reply
+		WHERE reply_no=#{value}
+	</select>
+	
+	<update id="snsUpdateReply" parameterType="reply">
+		UPDATE reply 
+		SET reply_comment=#{replyComment} 
+		WHERE reply_no=#{replyNo}		
+	</update>
+	
+	<delete id="snsDeleteReply" parameterType="string">
+		DELETE FROM reply 
+		WHERE reply_no=#{value}
+	</delete>
+	
+	<!-- soundReply -->
+
+	<resultMap type="reply" id="soundReplyListRM">
+		<result property="replyNo" column="reply_no"/>
+		<result property="replyWriter" column="reply_writer"/>
+		<result property="soundBoardNo" column="sound_board_no"/>
+		<result property="replyComment" column="reply_comment"/>
+		<result property="replyTime" column="reply_time"/>
+		<result property="checking" column="checking"/>
+	</resultMap>
+	
+	<insert id="soundInsertReply" parameterType="reply">
+		<selectKey keyProperty="replyNo" resultType="int" order="BEFORE">
+				select reply_seq.nextVal from dual	
+		</selectKey>
+		INSERT INTO reply
+		(reply_no, reply_writer, sound_board_no,
+		 reply_comment, reply_time) 
+		 values(#{replyNo},#{replyWriter},#{soundBoardNo},#{replyComment}, sysdate)
+	</insert>
+
+	<select id="soundGetAllReply" resultMap="soundReplyListRM" parameterType="string">
+		SELECT 
+		reply_no, reply_writer, sound_board_no, reply_comment,TO_CHAR(reply_time, 'YYYY-MM-DD HH24:MI') AS reply_time 
+		FROM reply	
+		WHERE sound_board_no=#{value}
+	</select>
+	
+	<select id="soundGetOneReply" parameterType="string" resultMap="soundReplyListRM">
+		SELECT 
+		reply_no, reply_writer, sound_board_no, reply_comment, TO_CHAR(reply_time, 'YYYY-MM-DD HH24:MI') AS reply_time
+		FROM reply
+		WHERE reply_no=#{value}
+	</select>
+	
+	<update id="soundUpdateReply" parameterType="reply">
+		UPDATE reply 
+		SET reply_comment=#{replyComment} 
+		WHERE reply_no=#{replyNo}		
+	</update>
+	
+	<delete id="soundDeleteReply" parameterType="string">
+		DELETE FROM reply 
+		WHERE reply_no=#{value}
+	</delete>
+</mapper>

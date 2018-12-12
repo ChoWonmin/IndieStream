@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="managerMapper">
+	<resultMap type="manager" id="managerRM">
+		<result property="managerId" column="manager_id"/>
+		<result property="password" column="password"/>
+	</resultMap>
+	
+
+	<select id="selectOneManager" parameterType="manager" resultMap="managerRM">
+		SELECT manager_id,password
+		FROM manager
+		WHERE manager_id=#{managerId} and password=#{password}
+	</select>
+
+	<insert id="insertOneManager" parameterType="manager" >
+		insert into manager(manager_id, password)
+		values(#{managerId}, #{password})
+	</insert>
+	
+</mapper>	
+
+
+

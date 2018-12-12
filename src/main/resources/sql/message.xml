@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="messageMapper">
+
+	<resultMap type="message" id="messageMap">
+		<result property="messageNo" column="message_no"/>
+		<result property="messageRoomNo" column="message_room_no"/>
+		<result property="sendId" column="send_id"/>
+		<result property="messageComment" column="message_comment"/>
+		<result property="messageTime" column="message_time"/>
+	</resultMap>
+
+	<resultMap type="messageRoom" id="messageRoom">
+		<result property="messageRoomNo" column="message_room_no"/>
+		<result property="multiple" column="multiple"/>
+	</resultMap>
+	
+	<resultMap type="memberMessageRoom" id="memberMessageRoom">
+		<result property="messageRoomNo" column="message_room_no"/>
+		<result property="memberId" column="member_id"/>
+		<result property="messageRoomNotice" column="message_room_notice"/>
+		<result property="messageRoomName" column="message_room_name"/>
+		<result property="messageRoomTime" column="message_room_time"/>
+	</resultMap>
+	
+<!-- message -->
+	
+	<sql id="message-collumn">
+		message_no, message_room_no, send_id, message_comment, message_time
+	</sql>
+	
+	<insert id="writeMessage" parameterType="message">
+		<selectKey keyProperty="messageNo" resultType="int" order="BEFORE">
+			SELECT 
+			message_seq.nextVal 
+			FROM dual
+		</selectKey>
+		INSERT INTO message(<include refid="message-collumn"/>)
+		VALUES(#{messageNo}, #{messageRoomNo}, #{sendId}, #{messageComment}, sysdate)
+	</insert>
+	
+	<delete id="deleteMessage" parameterType="String">
+		DELETE FROM message
+		WHERE message_no=#{value}
+	</delete>
+	
+	<select id="selectMessage" parameterType="String" resultMap="messageMap">
+		SELECT
+		<include refid="message-collumn"/>
+		FROM message
+		WHERE message_room_no=#{messageRoomNo} 
+			  AND message_time > 
+			  (
+				SELECT message_room_date 
+				FROM member_message_room 
+				WHERE message_room_no = #{messageRoomNo} 
+		    	AND member_id = #{memberId}	
+			  )
+		ORDER BY message_time	
+	</select>
+		
+<!-- messageRoom -->
+	
+	<insert id="insertMessageRoom" parameterType="messageRoom">
+		<selectKey keyProperty="messageRoomNo" resultType="int" order="BEFORE">
+			SELECT 
+			message_room_seq.nextVal 
+			FROM dual
+		</selectKey>
+		INSERT INTO
+		message_room(message_room_no, multiple)
+		VALUES (#{messageRoomNo}, 0)
+	</insert>
+	
+	<delete id="deleteMessageRoom" parameterType="String">
+		DELETE FROM message_room
+		WHERE message_room_no=#{value}
+	</delete>	
+	
+	<update id="changeMultiple" parameterType="String">
+		UPDATE message_room
+		SET multiple=1
+		WHERE message_room_no=#{value}
+	</update>
+	
+	<select id="isMultiple" parameterType="String" resultType="boolean">
+		SELECT
+		multiple
+		FROM message_room
+		WHERE message_room_no=#{value}
+	</select>
+	
+	<select id="selectLastMessageRoomNo" resultType="int">
+		SELECT
+			message_room_seq.currVal 
+		FROM dual
+	</select>
+	
+<!-- memberMessageRoom -->
+
+	<sql id="memberMessageRoom-column">
+	message_room_no, member_id, message_room_notice, message_room_name, message_room_time
+	</sql>
+
+	<insert id="insertMemberMessageRoom" parameterType="memberMessageRoom">
+		INSERT INTO
+		member_message_room(<include refid="memberMessageRoom-column"/>)
+		VALUES (#{messageRoomNo}, #{memberId}, 0, '', sysdate)
+	</insert>
+	
+	<delete id="deleteMemberMessageRoom" parameterType="memberMessageRoom">
+		DELETE FROM member_message_room
+		WHERE message_room_no=#{messageRoomNo} AND member_id=#{memberId}
+	</delete>
+	
+	<update id="updateMemberMessageRoomName" parameterType="memberMessageRoom">
+		UPDATE member_message_room
+		SET message_room_name=#{messageRoomName}
+		WHERE message_room_no=#{messageRoomNo}
+	</update>
+	
+	<update id="initMemberMessageRoomNotice" parameterType="memberMessageRoom">
+		UPDATE member_message_room
+		SET message_room_notice=0
+		WHERE message_room_no=#{messageRoomNo}
+			  AND member_id=#{memberId} 
+	</update>
+	
+	<update id="increaseMemberMessageRoomNotice" parameterType="int">
+		UPDATE member_message_room
+		SET message_room_notice=message_room_notice+1 
+		WHERE message_room_no=#{value}
+	</update>
+	
+	<select id="selectMessageRoom" parameterType="String" resultMap="memberMessageRoom">
+		SELECT
+		<include refid="memberMessageRoom-column"/>
+		FROM
+		member_message_room
+		WHERE message_room_no=#{messageRoomNo}
+		ORDER BY message_room_date;
+	</select>
+	
+	<select id="selectMessageRoomById" parameterType="String" resultMap="memberMessageRoom">
+		SELECT
+		<include refid="memberMessageRoom-column"/>
+		FROM
+		member_message_room
+		WHERE member_id=#{value}
+	</select>
+	
+	<select id="selectIdByMessageRoomNo" parameterType="String" resultType="String">
+		SELECT
+		member_id
+		FROM
+		member_message_room
+		WHERE message_room_no=#{value}
+	</select>
+	
+	<select id="findMessageRoom" parameterType="memberMessageRoom" resultMap="memberMessageRoom">
+		SELECT
+		<include refid="memberMessageRoom-column"/>
+		FROM
+		member_message_room
+		WHERE message_room_no=#{messageRoomNo}
+			  AND member_id=#{memberId}
+		ORDER BY message_room_date
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+

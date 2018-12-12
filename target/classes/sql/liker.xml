@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="likerMapper">
+	
+	<!-- snsBoard  -->
+	
+	<resultMap type="liker" id="snsLikerListRM">
+	<result property="snsBoardNo" column="sns_board_no"/>
+	<result property="snsWriter" column="sns_writer"/>
+	<result property="liker" column="liker"/>
+	</resultMap>
+	
+	<select id="getSnsLiker" parameterType="liker" resultMap="snsLikerListRM">
+		select distinct * from liker 
+		where liker=#{liker} and sns_board_no=#{snsBoardNo}
+	</select>
+	
+	<select id="selectSnsLikerNumber" parameterType="string" resultType="int">
+		SELECT
+		count(-1)
+		FROM liker
+		WHERE sns_board_no=#{value}
+	</select>
+	
+	<delete id="deleteSnsLiker" parameterType="liker">
+		delete from liker 
+		where liker=#{liker} and sns_board_no=#{snsBoardNo}
+	</delete>
+	
+	<insert id="insertSnsLiker" parameterType="liker">
+		insert into liker(sns_board_no, sns_writer, liker)
+		values(#{snsBoardNo},#{snsWriter},#{liker})
+	</insert>
+	
+	<!-- Sound Liker -->
+	<resultMap type="liker" id="soundLikerListRM">
+	<result property="soundBoardNo" column="sound_board_no"/>
+	<result property="soundWriter" column="sound_writer"/>
+	<result property="liker" column="liker"/>
+	</resultMap>
+	
+	<select id="sortByLiker" resultMap="soundLikerListRM">
+		select * from liker where sound_writer is not null
+	</select>
+	
+	<select id="getSoundLiker" parameterType="liker" resultMap="soundLikerListRM">
+		select distinct * from liker 
+		where liker=#{liker} and sound_board_no=#{soundBoardNo}
+	</select>
+	
+	<select id="selectSoundLikerNumber" parameterType="string" resultType="int">
+		SELECT
+		count(-1)
+		FROM liker
+		WHERE sound_board_no=#{value}
+	</select>
+	
+	<delete id="deleteSoundLiker" parameterType="liker">
+		delete from liker 
+		where liker=#{liker} and sound_board_no=#{soundBoardNo}
+	</delete>
+	
+	<insert id="insertSoundLiker" parameterType="liker">
+		insert into liker(sound_board_no, sound_writer, liker)
+		values(#{soundBoardNo},#{soundWriter},#{liker})
+	</insert>
+
+	
+</mapper>

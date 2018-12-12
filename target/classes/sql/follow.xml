@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="followMapper">
+
+	<resultMap type="member" id="memberMap">
+      <result property="memberId" column="member_Id"/>
+      <result property="password" column="password"/>
+      <result property="profilePhoto" column="profilePhoto"/>
+      <result property="introduction" column="introduction"/>
+      <result property="reportCount" column="reportCount"/>
+      <result property="phoneNumber" column="phone_Number"/>
+    </resultMap>
+
+	<resultMap type="follow" id="followMap">
+		<result property="followId" column="follow_id"/>
+		<result property="followedId" column="followed_id"/>
+		<result property="checking" column="checking"/>
+	</resultMap>
+	
+	<sql id="follow-collumn">
+		follow_id, followed_id, checking
+	</sql>
+	
+	<sql id="where-follow-followed">
+		WHERE follow_id=#{followId} and followed_id=#{followedId}
+	</sql>
+	
+	<insert id="insertFollow" parameterType="follow">
+		INSERT INTO
+		follow values(#{followId},#{followedId},0)
+	</insert>
+	
+	<delete id="deleteFollow" parameterType="follow">
+		DELETE FROM follow
+		<include refid="where-follow-followed"></include>
+	</delete>
+	
+	<update id="checkFollow" parameterType="follow">
+		UPDATE follow
+		SET checking=1
+		<include refid="where-follow-followed"></include> AND checking=0
+	</update>
+	
+	<select id="idDuplicated" parameterType="follow" resultType="String">
+		SELECT
+		count(-1)
+		FROM follow
+		<include refid="where-follow-followed"></include>
+	</select>
+	
+	<select id="selectFollowCheckList" parameterType="String" resultMap="memberMap">
+		SELECT 
+		member_Id, profilePhoto,introduction,reportCount,phone_Number
+		FROM member
+		where member_id IN
+		(
+			SELECT
+			follow_id
+			FROM follow
+			WHERE followed_id=#{value} and checking=0
+		)
+	</select>
+	
+	<select id="selectFollowIdByMemberId" parameterType="String" resultMap="memberMap">
+		SELECT 
+		member_Id, profilePhoto,introduction,reportCount,phone_Number
+		FROM member
+		where member_id IN
+		(
+			SELECT
+			follow_id
+			FROM follow
+			WHERE followed_id=#{value}
+		)
+	</select>
+	
+	<select id="selectFollowedIdByMemberId" parameterType="String" resultMap="memberMap">
+		SELECT 
+		member_Id, profilePhoto,introduction,reportCount,phone_Number
+		FROM member
+		where member_id IN
+		(
+			SELECT
+			followed_id
+			FROM follow
+			WHERE follow_id=#{value}
+		)
+	</select>
+	
+</mapper>	
+

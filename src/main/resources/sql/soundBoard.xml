@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="soundBoardMapper">
+	<resultMap type="soundBoard" id="soundBoardListRM">
+		<result property="soundBoardNo" column="sound_board_no" />
+		<result property="soundWriter" column="sound_writer" />
+		<result property="soundTitle" column="sound_title" />
+		<result property="soundUrl" column="sound_url" />
+		<result property="soundContent" column="sound_content" />
+		<result property="soundPhoto" column="sound_photo" />
+		<result property="soundGenre" column="sound_genre" />
+		<result property="soundCount" column="sound_count" />
+		<result property="postedTime" column="posted_time" />
+	</resultMap>
+	
+	<insert id="SoundRegister" parameterType="soundBoard">
+		<selectKey keyProperty="soundBoardNo" resultType="int"
+			order="BEFORE">
+			SELECT sound_board_seq.nextVal FROM dual
+		</selectKey>
+		INSERT INTO
+		sound_board(sound_board_no, sound_genre, sound_writer,
+		sound_title, sound_url, sound_content, sound_photo,
+		posted_time,
+		sound_count)
+		VALUES(#{soundBoardNo}, #{soundGenre}, #{soundWriter},
+		#{soundTitle}, #{soundUrl}, #{soundContent}, #{soundPhoto},
+		sysdate,0)
+	</insert>
+
+	<update id="SoundUpdate" parameterType="soundBoard">
+		UPDATE sound_board SET
+		sound_url=#{soundUrl}, sound_title=#{soundTitle},
+		sound_content=#{soundContent},
+		sound_photo=#{soundPhoto},
+		sound_genre=#{soundGenre}
+		WHERE
+		sound_board_no=#{soundBoardNo}
+	</update>
+
+	<delete id="SoundDelete" parameterType="int">
+		DELETE FROM sound_board
+		WHERE sound_board_no=#{value}
+	</delete>
+	
+	<select id="SoundSortByDate" resultMap="soundBoardListRM">
+		SELECT * FROM sound_board
+		ORDER BY posted_time DESC
+	</select>
+
+	<select id="SoundSortByCount" resultMap="soundBoardListRM">
+		SELECT * FROM
+		sound_board ORDER BY sound_count DESC
+	</select>
+	
+	<select id="SoundSortByNo" resultMap="soundBoardListRM">
+		SELECT * FROM sound_board ORDER BY sound_board_no DESC
+	</select>
+
+	<select id="SoundBoardList" resultMap="soundBoardListRM">
+		SELECT sound_board_no,
+		sound_writer, sound_title, sound_url, sound_content, sound_photo,
+		posted_time, sound_count, sound_genre
+		FROM sound_board
+	</select>
+
+	<select id="SoundBoardNo" resultType="int">
+		SELECT
+		sound_board_seq.currVal from dual
+	</select>
+
+	<select id="ShowContent" parameterType="int" resultMap="soundBoardListRM">
+		SELECT
+		sound_board_no, sound_writer, sound_title, sound_url, sound_content,
+		sound_photo, sound_count, posted_time, sound_genre
+		FROM sound_board
+		WHERE
+		sound_board_no=#{value}
+	</select>
+	<update id="SoundUpdateCount" parameterType="int">
+		UPDATE sound_board
+		SET sound_count=sound_count+1
+		WHERE sound_board_no=#{value}
+	</update>
+
+	<!-- 검색기능 -->
+	<select id="soundBoardWriterSearchSelect" parameterType="string"
+		resultMap="soundBoardListRM">
+		select sound_board_no, sound_writer, sound_url,
+		sound_content, sound_photo, posted_time, sound_title
+		from sound_board
+		where sound_writer like '%'||#{value}||'%'
+	</select>
+	<select id="soundBoardContentSearchSelect" parameterType="string"
+		resultMap="soundBoardListRM">
+		select sound_board_no, sound_writer, sound_url,
+		sound_content, sound_photo, posted_time, sound_title
+		from sound_board
+		where sound_content like '%'||#{value}||'%'
+	</select>
+	<select id="soundBoardTitleSearchSelect" parameterType="string"
+		resultMap="soundBoardListRM">
+		select sound_board_no, sound_writer, sound_url,
+		sound_content, sound_photo, posted_time, sound_title
+		from sound_board
+		where sound_title like '%'||#{value}||'%'
+	</select>
+	<!-- 검색기능 -->
+	<select id="soundSelectAllFromWriter" parameterType="string" resultMap="soundBoardListRM">
+      SELECT sound_board_no,
+      sound_writer, sound_title, sound_url, sound_content, sound_photo,
+      posted_time, sound_count, sound_genre
+      FROM sound_board where sound_writer = #{value}
+   </select>
+
+	<select id="SoundBoardSearchSelect" parameterType="string"
+		resultMap="soundBoardListRM">
+		SELECT sound_board_no, sound_writer, sound_url,
+		sound_content, sound_photo, posted_time, sound_title, sound_genre
+		FROM
+		sound_board
+		WHERE sound_genre=#{genre}
+	</select>
+</mapper>
+

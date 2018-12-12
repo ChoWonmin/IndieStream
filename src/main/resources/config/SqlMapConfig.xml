@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+	
+<configuration>
+	
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="spring.indiestream.domain.MemberVO" alias="member"/>
+		<typeAlias type="spring.indiestream.domain.SoundBoardVO" alias="soundBoard"/>
+		<typeAlias type="spring.indiestream.domain.LikerVO" alias="liker"/>
+		<typeAlias type="spring.indiestream.domain.GenreVO" alias="genre"/>
+		<typeAlias type="spring.indiestream.domain.FollowVO" alias="follow"/>
+		<typeAlias type="spring.indiestream.domain.message.MessageVO" alias="message"/>
+		<typeAlias type="spring.indiestream.domain.message.MessageRoomVO" alias="messageRoom"/>
+		<typeAlias type="spring.indiestream.domain.message.MemberMessageRoomVO" alias="memberMessageRoom"/>
+		<typeAlias type="spring.indiestream.domain.MusicListVO" alias="musicList"/>
+		<typeAlias type="spring.indiestream.domain.SnsBoardVO" alias="sns"/>
+		<typeAlias type="spring.indiestream.domain.ImageVO" alias="image"/>
+		<typeAlias type="spring.indiestream.domain.ReplyVO" alias="reply"/>
+		<typeAlias type="spring.indiestream.domain.HashtagVO" alias="hash"/>		
+		<typeAlias type="spring.indiestream.domain.ReportVO" alias="report"/>
+		<typeAlias type="spring.indiestream.domain.ManagerVO" alias="manager"/>
+		<typeAlias type="spring.indiestream.domain.TopicVO" alias="topic"/>
+		<typeAlias type="util.page.PageModel" alias="pageModel"/>
+	</typeAliases>
+	
+	<!-- <environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC"/>
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+				<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe"/>
+				<property name="username" value="indie"/>
+				<property name="password" value="stream"/>
+			</dataSource>
+		</environment>
+	</environments> -->
+	
+	<mappers>
+		<mapper resource="sql/soundBoard.xml"/>
+		<mapper resource="sql/liker.xml"/>
+		<mapper resource="sql/member.xml"/>
+		<mapper resource="sql/genre.xml"/>
+		<mapper resource="sql/follow.xml"/>
+		<mapper resource="sql/message.xml"/>
+		<mapper resource="sql/musicList.xml"/>
+		<mapper resource="sql/snsBoard.xml"/>
+		<mapper resource="sql/image.xml"/>
+		<mapper resource="sql/reply.xml"/>
+		<mapper resource="sql/hashtag.xml"/>
+		<mapper resource="sql/report.xml"/>
+		<mapper resource="sql/manager.xml"/>
+		<mapper resource="sql/topic.xml"/>
+	</mappers>
+</configuration>

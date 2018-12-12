@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="genreMapper">
+	<resultMap type="genre" id="genreMap">
+		<result property="memberId" column="member_id"/>
+		<result property="topic" column="topic"/>
+	</resultMap>
+	
+	<sql id="genre-collumn">
+		member_id , topic
+	</sql>
+	
+	<select id="selectGenreByMemberId" parameterType="String" resultType="String">
+		SELECT
+		topic
+		FROM genre
+		WHERE member_id=#{value}
+	</select>
+
+	<insert id="addGenre" parameterType="genre" >
+		insert into genre
+		(<include refid="genre-collumn"/>)
+		values(#{memberId}, #{topic})
+	</insert>
+	
+	<delete id="deleteGenre" parameterType="String">
+		delete 
+		from genre
+		where 
+		member_id=#{memberId}
+	</delete>
+
+
+</mapper>	
+
+
+
